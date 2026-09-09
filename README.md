@@ -2,7 +2,7 @@
   <img src="assets/logo.png" alt="FTech FTool Logo" width="220" />
 </p>
 
-<h1 align="center">⚡ FTool v2.0 Pro</h1>
+<h1 align="center">⚡ FTool v2.0 Pro by naufal8</h1>
 
 <p align="center">
   <b>Next-Gen Dev, OSINT & Machine Learning Suite for Windows</b><br>
