@@ -9,17 +9,43 @@ ICON_PATH = os.path.join(ASSETS_DIR, "app_icon.ico")
 
 # App Details
 APP_NAME = "FTool"
-APP_SUBTITLE = "Futuristic All-in-One Dev & Machine Learning Studio"
-APP_VERSION = "1.0.0"
+APP_SUBTITLE = "Next-Gen Dev, OSINT & Machine Learning Suite"
+APP_VERSION = "2.0.0"
 AUTHOR = "FTech"
 
 # Cyber & Futuristic Theme Palette
+THEMES = {
+    "Cyan": {
+        "accent": "#00e5ff",
+        "accent_glow": "rgba(0, 229, 255, 0.25)",
+        "accent_secondary": "#7c4dff",
+    },
+    "Violet": {
+        "accent": "#c084fc",
+        "accent_glow": "rgba(192, 132, 252, 0.25)",
+        "accent_secondary": "#06b6d4",
+    },
+    "Matrix": {
+        "accent": "#00e676",
+        "accent_glow": "rgba(0, 230, 118, 0.25)",
+        "accent_secondary": "#00e5ff",
+    },
+    "Solar": {
+        "accent": "#ffb300",
+        "accent_glow": "rgba(255, 179, 0, 0.25)",
+        "accent_secondary": "#ff5252",
+    }
+}
+
+CURRENT_THEME = "Cyan"
+
 THEME = {
-    "bg_dark": "#090d16",
-    "bg_card": "#101626",
+    "bg_dark": "#070a12",
+    "bg_surface": "#0c111d",
+    "bg_card": "#101726",
     "bg_card_hover": "#162035",
-    "bg_input": "#0d1322",
-    "border_subtle": "#1d2942",
+    "bg_input": "#0b101c",
+    "border_subtle": "#1c263c",
     "border_glow": "#00e5ff",
     "border_glow_purple": "#7c4dff",
     "accent_cyan": "#00e5ff",
@@ -29,13 +55,13 @@ THEME = {
     "accent_green": "#00e676",
     "accent_amber": "#ffb300",
     "accent_red": "#ff5252",
-    "text_primary": "#f1f5f9",
+    "text_primary": "#f8fafc",
     "text_secondary": "#94a3b8",
-    "text_muted": "#64748b",
+    "text_muted": "#475569",
 }
 
-# Master Futuristic QSS Stylesheet
-GLOBAL_QSS = f"""
+def get_qss(accent_color: str = THEME['accent_cyan']) -> str:
+    return f"""
 QMainWindow, QDialog {{
     background-color: {THEME['bg_dark']};
     color: {THEME['text_primary']};
@@ -53,17 +79,17 @@ QWidget {{
 QScrollBar:vertical {{
     border: none;
     background: {THEME['bg_dark']};
-    width: 8px;
+    width: 7px;
     margin: 0px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 QScrollBar::handle:vertical {{
     background: {THEME['border_subtle']};
     min-height: 25px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 QScrollBar::handle:vertical:hover {{
-    background: {THEME['accent_cyan']};
+    background: {accent_color};
 }}
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
     height: 0px;
@@ -72,17 +98,17 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
 QScrollBar:horizontal {{
     border: none;
     background: {THEME['bg_dark']};
-    height: 8px;
+    height: 7px;
     margin: 0px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 QScrollBar::handle:horizontal {{
     background: {THEME['border_subtle']};
     min-width: 25px;
-    border-radius: 4px;
+    border-radius: 3px;
 }}
 QScrollBar::handle:horizontal:hover {{
-    background: {THEME['accent_cyan']};
+    background: {accent_color};
 }}
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
     width: 0px;
@@ -92,15 +118,15 @@ QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {{
 QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {{
     background-color: {THEME['bg_input']};
     border: 1px solid {THEME['border_subtle']};
-    border-radius: 6px;
+    border-radius: 7px;
     padding: 8px 12px;
     color: {THEME['text_primary']};
-    selection-background-color: {THEME['accent_cyan']};
+    selection-background-color: {accent_color};
     selection-color: #000000;
 }}
 QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {{
-    border: 1px solid {THEME['accent_cyan']};
-    background-color: #111a2e;
+    border: 1px solid {accent_color};
+    background-color: #0f1728;
 }}
 
 /* ComboBox */
@@ -113,10 +139,10 @@ QComboBox::drop-down {{
 QComboBox QAbstractItemView {{
     background-color: {THEME['bg_card']};
     border: 1px solid {THEME['border_subtle']};
-    selection-background-color: {THEME['accent_purple']};
-    selection-color: white;
+    selection-background-color: {accent_color};
+    selection-color: #000000;
     color: {THEME['text_primary']};
-    padding: 4px;
+    padding: 6px;
 }}
 
 /* Tab Widget */
@@ -124,7 +150,7 @@ QTabWidget::pane {{
     border: 1px solid {THEME['border_subtle']};
     background-color: {THEME['bg_card']};
     border-radius: 8px;
-    padding: 6px;
+    padding: 8px;
 }}
 QTabBar::tab {{
     background: {THEME['bg_input']};
@@ -134,12 +160,12 @@ QTabBar::tab {{
     border-top-left-radius: 6px;
     border-top-right-radius: 6px;
     color: {THEME['text_secondary']};
-    font-weight: 500;
+    font-weight: 600;
 }}
 QTabBar::tab:selected {{
     background: {THEME['bg_card']};
-    color: {THEME['accent_cyan']};
-    border-bottom: 2px solid {THEME['accent_cyan']};
+    color: {accent_color};
+    border-bottom: 2px solid {accent_color};
 }}
 QTabBar::tab:hover:!selected {{
     background: {THEME['bg_card_hover']};
@@ -150,15 +176,15 @@ QTabBar::tab:hover:!selected {{
 QPushButton {{
     background-color: {THEME['bg_card']};
     border: 1px solid {THEME['border_subtle']};
-    border-radius: 6px;
+    border-radius: 7px;
     padding: 8px 16px;
     color: {THEME['text_primary']};
     font-weight: 600;
 }}
 QPushButton:hover {{
     background-color: {THEME['bg_card_hover']};
-    border-color: {THEME['accent_cyan']};
-    color: {THEME['accent_cyan']};
+    border-color: {accent_color};
+    color: {accent_color};
 }}
 QPushButton:pressed {{
     background-color: #1a2742;
@@ -173,16 +199,16 @@ QPushButton:disabled {{
 QTableWidget, QTableView {{
     background-color: {THEME['bg_card']};
     border: 1px solid {THEME['border_subtle']};
-    border-radius: 6px;
-    gridline-color: #182236;
+    border-radius: 7px;
+    gridline-color: #151f33;
     color: {THEME['text_primary']};
-    selection-background-color: rgba(0, 229, 255, 0.2);
+    selection-background-color: rgba(0, 229, 255, 0.15);
     selection-color: {THEME['text_primary']};
 }}
 QHeaderView::section {{
     background-color: {THEME['bg_input']};
     color: {THEME['text_secondary']};
-    padding: 6px;
+    padding: 7px;
     border: 1px solid {THEME['border_subtle']};
     font-weight: 600;
 }}
@@ -198,7 +224,9 @@ QProgressBar {{
     height: 14px;
 }}
 QProgressBar::chunk {{
-    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {THEME['accent_purple']}, stop:1 {THEME['accent_cyan']});
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {THEME['accent_purple']}, stop:1 {accent_color});
     border-radius: 3px;
 }}
 """
+
+GLOBAL_QSS = get_qss(THEME['accent_cyan'])

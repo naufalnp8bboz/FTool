@@ -4,11 +4,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox,
     QPushButton, QTableWidget, QTableWidgetItem, QFileDialog,
     QMessageBox, QSplitter, QScrollArea, QFrame, QLineEdit,
-    QSlider, QDialog, QTextEdit
+    QSlider, QDialog, QTextEdit, QTabWidget
 )
 from PyQt6.QtCore import Qt
 from ftool.config import THEME
-from ftool.ui.components import FuturisticCard, NeonButton, StatCard, DarkPlotCanvas
+from ftool.ui.components import FuturisticCard, NeonButton, StatCard, DarkPlotCanvas, NeuralNetworkGraphWidget
 from ftool.core.ml_engine import MLEngine
 
 class MLStudioTab(QWidget):
@@ -21,15 +21,20 @@ class MLStudioTab(QWidget):
         main_layout.setContentsMargins(16, 16, 16, 16)
         main_layout.setSpacing(12)
 
-        # Top Control Bar (Dataset selection, Upload, Model select)
+        # Top Control Bar
         top_bar = FuturisticCard()
         top_layout = QHBoxLayout()
         top_layout.setSpacing(10)
 
-        # Preset Dataset Selector
         top_layout.addWidget(QLabel("Dataset:"))
         self.combo_dataset = QComboBox()
-        self.combo_dataset.addItems(["Iris (Classification)", "Customer Churn (Classification)", "Wine (Classification)", "Diabetes (Regression)"])
+        self.combo_dataset.addItems([
+            "Iris (Classification)",
+            "Synthetic Cyber Traffic (Binary)",
+            "Customer Churn (Classification)",
+            "Wine (Classification)",
+            "Diabetes (Regression)"
+        ])
         self.combo_dataset.currentIndexChanged.connect(self._on_preset_selected)
         top_layout.addWidget(self.combo_dataset)
 
@@ -39,18 +44,22 @@ class MLStudioTab(QWidget):
 
         top_layout.addSpacing(15)
 
-        # Algorithm Selector
         top_layout.addWidget(QLabel("Algorithm:"))
         self.combo_algo = QComboBox()
-        self.combo_algo.addItems(["Random Forest", "Gradient Boosting", "Logistic Regression", "SVM", "KNN"])
+        self.combo_algo.addItems([
+            "Neural Network (MLP)",
+            "Random Forest",
+            "Gradient Boosting",
+            "Logistic Regression",
+            "SVM",
+            "KNN"
+        ])
         top_layout.addWidget(self.combo_algo)
 
-        # Train Button
         self.btn_train = NeonButton("⚡ TRAIN MODEL", variant="purple")
         self.btn_train.clicked.connect(self._train_model)
         top_layout.addWidget(self.btn_train)
 
-        # Code & Export Buttons
         btn_code = NeonButton("Python Code", variant="cyan")
         btn_code.clicked.connect(self._show_code_modal)
         top_layout.addWidget(btn_code)
@@ -63,7 +72,7 @@ class MLStudioTab(QWidget):
         top_bar.addLayout(top_layout)
         main_layout.addWidget(top_bar)
 
-        # Main Splitter: Left (Data & Config) | Right (Visualizations & Inference)
+        # Splitter: Left (Data & Config) | Right (Visualizations & Topology)
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.setStyleSheet("QSplitter::handle { background-color: #1d2942; width: 3px; }")
 
@@ -73,7 +82,6 @@ class MLStudioTab(QWidget):
         left_layout.setContentsMargins(0, 0, 8, 0)
         left_layout.setSpacing(10)
 
-        # EDA Summary Cards
         eda_card = FuturisticCard("DATASET STATISTICAL OVERVIEW")
         eda_stats = QHBoxLayout()
         self.stat_rows = StatCard("Samples", "0", color=THEME['accent_cyan'])
@@ -85,7 +93,6 @@ class MLStudioTab(QWidget):
         eda_card.addLayout(eda_stats)
         left_layout.addWidget(eda_card)
 
-        # Table Preview
         table_card = FuturisticCard("DATA PREVIEW (FIRST 10 ROWS)")
         self.table_preview = QTableWidget()
         self.table_preview.setAlternatingRowColors(True)
@@ -94,7 +101,7 @@ class MLStudioTab(QWidget):
 
         splitter.addWidget(left_widget)
 
-        # Right Panel (Metrics, Visual Chart, Live Inference Sandbox)
+        # Right Panel (Metrics, Visual Chart, Topology)
         right_scroll = QScrollArea()
         right_scroll.setWidgetResizable(True)
         right_scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -115,14 +122,23 @@ class MLStudioTab(QWidget):
         metrics_card.addLayout(m_layout)
         right_layout.addWidget(metrics_card)
 
-        # Plot Card (Confusion Matrix or Feature Importances)
-        plot_card = FuturisticCard("VISUAL EVALUATION & FEATURE IMPORTANCE")
-        self.canvas = DarkPlotCanvas(width=5, height=3.5)
-        plot_card.addWidget(self.canvas)
-        right_layout.addWidget(plot_card)
+        # Visual Tabs: Topology Graph vs Confusion Matrix vs Loss Curve
+        vis_card = FuturisticCard("NEURAL TOPOLOGY & EVALUATION DIAGNOSTICS")
+        self.vis_tabs = QTabWidget()
+
+        # Tab 1: Interactive Neural Network Graph
+        self.nn_graph = NeuralNetworkGraphWidget(layer_sizes=(4, 8, 6, 3))
+        self.vis_tabs.addTab(self.nn_graph, "🧠 Neural Network Topology")
+
+        # Tab 2: Dark Matplotlib Canvas (Confusion matrix / Feature importance / Loss)
+        self.canvas = DarkPlotCanvas(width=5, height=3.2)
+        self.vis_tabs.addTab(self.canvas, "📊 Performance Heatmap & Charts")
+
+        vis_card.addWidget(self.vis_tabs)
+        right_layout.addWidget(vis_card)
 
         # Live Inference Sandbox
-        self.sandbox_card = FuturisticCard("LIVE INFERENCE SANDBOX (TEST PREDICTION)")
+        self.sandbox_card = FuturisticCard("LIVE INFERENCE SANDBOX (REAL-TIME PREDICTIONS)")
         self.sandbox_layout = QVBoxLayout()
         self.sandbox_inputs_layout = QHBoxLayout()
         self.sandbox_layout.addLayout(self.sandbox_inputs_layout)
@@ -146,15 +162,16 @@ class MLStudioTab(QWidget):
 
         main_layout.addWidget(splitter)
 
-        # Load initial default dataset
+        # Load initial dataset
         self._load_dataset_preset("iris")
 
     def _on_preset_selected(self, index: int):
         mapping = {
             0: "iris",
-            1: "customer_churn",
-            2: "wine",
-            3: "diabetes"
+            1: "synthetic_cyber",
+            2: "customer_churn",
+            3: "wine",
+            4: "diabetes"
         }
         name = mapping.get(index, "iris")
         self._load_dataset_preset(name)
@@ -163,13 +180,11 @@ class MLStudioTab(QWidget):
         try:
             df = self.ml_engine.load_sample_dataset(name)
             self._update_eda_display()
-            # Update algorithm options depending on task type
             self.combo_algo.clear()
             if self.ml_engine.task_type == "classification":
-                self.combo_algo.addItems(["Random Forest", "Gradient Boosting", "Logistic Regression", "SVM", "KNN"])
+                self.combo_algo.addItems(["Neural Network (MLP)", "Random Forest", "Gradient Boosting", "Logistic Regression", "SVM", "KNN"])
             else:
-                self.combo_algo.addItems(["Random Forest", "Linear Regression", "Gradient Boosting", "SVR"])
-            # Auto train on load for instant beginner gratification
+                self.combo_algo.addItems(["Neural Network (MLP)", "Random Forest", "Linear Regression", "Gradient Boosting", "SVR"])
             self._train_model()
         except Exception as e:
             QMessageBox.critical(self, "Error Loading Dataset", str(e))
@@ -181,12 +196,10 @@ class MLStudioTab(QWidget):
         if file_path:
             try:
                 self.ml_engine.load_file(file_path)
-                # Ask user for target column
                 cols = list(self.ml_engine.df.columns)
-                target_col = cols[-1] # Default to last column
+                target_col = cols[-1]
                 self.ml_engine.target_name = target_col
                 
-                # Check if target is numeric with many unique values -> regression, else classification
                 is_num = np.issubdtype(self.ml_engine.df[target_col].dtype, np.number)
                 unique_cnt = self.ml_engine.df[target_col].nunique()
                 if is_num and unique_cnt > 15:
@@ -208,7 +221,6 @@ class MLStudioTab(QWidget):
         self.stat_cols.set_value(str(eda["columns"]))
         self.stat_target.set_value(self.ml_engine.target_name)
 
-        # Update Table Preview
         df = self.ml_engine.df
         self.table_preview.clear()
         self.table_preview.setRowCount(min(10, len(df)))
@@ -233,7 +245,7 @@ class MLStudioTab(QWidget):
                 task_type=self.ml_engine.task_type
             )
 
-            # Update Metric Cards
+            # Update Metrics
             if metrics["task"] == "classification":
                 self.stat_m1.set_value(f"{metrics['accuracy'] * 100:.1f}%")
                 self.stat_m2.set_value(f"{metrics['f1_score']:.3f}")
@@ -243,7 +255,11 @@ class MLStudioTab(QWidget):
                 self.stat_m2.set_value(f"{metrics['mse']:.3f}")
                 self.stat_m3.set_value(f"{metrics['mae']:.3f}")
 
-            # Plot visual evaluation
+            # Update Neural Network Graph
+            layers = metrics.get("network_layers", [4, 8, 6, 3])
+            self.nn_graph.set_layers(layers)
+
+            # Render Plot (Loss Curve or Confusion Matrix)
             self._render_plot(metrics)
 
             # Build inference inputs
@@ -257,7 +273,17 @@ class MLStudioTab(QWidget):
         ax = self.canvas.fig.add_subplot(111)
         ax.set_facecolor(THEME['bg_card'])
 
-        if metrics["task"] == "classification" and "confusion_matrix" in metrics:
+        loss_curve = metrics.get("loss_curve", [])
+        if loss_curve and len(loss_curve) > 2:
+            ax.plot(loss_curve, color="#00e5ff", lw=2, label="Cross-Entropy Loss")
+            ax.fill_between(range(len(loss_curve)), loss_curve, color="#00e5ff", alpha=0.15)
+            ax.set_title("Neural Network Epoch Loss Curve", color="white", fontsize=11, fontweight="bold")
+            ax.set_xlabel("Iteration Epoch", color=THEME['text_secondary'], fontsize=9)
+            ax.set_ylabel("Loss Magnitude", color=THEME['text_secondary'], fontsize=9)
+            ax.tick_params(colors=THEME['text_secondary'])
+            ax.grid(color="#1c263c", linestyle="--", alpha=0.6)
+            ax.legend(facecolor=THEME['bg_card'], edgecolor=THEME['border_subtle'], labelcolor=THEME['text_primary'])
+        elif metrics["task"] == "classification" and "confusion_matrix" in metrics:
             cm = np.array(metrics["confusion_matrix"])
             classes = metrics.get("classes", [str(i) for i in range(len(cm))])
             
@@ -275,28 +301,13 @@ class MLStudioTab(QWidget):
             ax.set_title("Confusion Matrix Heatmap", color="white", fontsize=11, pad=12, fontweight="bold")
             ax.set_xlabel("Predicted Label", color=THEME['text_secondary'], fontsize=10)
             ax.set_ylabel("True Label", color=THEME['text_secondary'], fontsize=10)
-
-        elif "feature_importances" in metrics and metrics["feature_importances"]:
-            fi = metrics["feature_importances"]
-            features = list(fi.keys())[:8]
-            scores = [fi[f] for f in features]
-            
-            y_pos = np.arange(len(features))
-            bars = ax.barh(y_pos, scores, align='center', color="#00e5ff", edgecolor="#7c4dff")
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels(features, color=THEME['text_secondary'], fontsize=9)
-            ax.invert_yaxis()
-            ax.set_xlabel("Importance Score", color=THEME['text_secondary'], fontsize=10)
-            ax.set_title("Feature Importances", color="white", fontsize=11, fontweight="bold")
-            ax.tick_params(colors=THEME['text_secondary'])
         else:
-            ax.text(0.5, 0.5, "Model Evaluation Complete", ha="center", va="center", color=THEME['accent_cyan'], fontsize=14)
+            ax.text(0.5, 0.5, "Model Evaluated Successfully", ha="center", va="center", color=THEME['accent_cyan'], fontsize=14)
 
         self.canvas.fig.tight_layout()
         self.canvas.draw()
 
     def _build_inference_inputs(self):
-        # Clear existing
         while self.sandbox_inputs_layout.count():
             item = self.sandbox_inputs_layout.takeAt(0)
             widget = item.widget()
@@ -306,14 +317,12 @@ class MLStudioTab(QWidget):
         self.single_predict_inputs = {}
         df = self.ml_engine.df
 
-        # Max 5 feature inputs in sandbox row
         features = self.ml_engine.feature_names[:5]
         for f in features:
             box = QVBoxLayout()
             lbl = QLabel(f[:15])
             lbl.setStyleSheet(f"font-size: 11px; color: {THEME['text_secondary']};")
             
-            # Use mean value as default
             mean_val = "0.0"
             if f in df and np.issubdtype(df[f].dtype, np.number):
                 mean_val = f"{df[f].mean():.2f}"

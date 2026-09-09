@@ -16,7 +16,6 @@ class DashboardTab(QWidget):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(16)
 
-        # Scroll Area for responsiveness
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
@@ -28,9 +27,9 @@ class DashboardTab(QWidget):
         # Welcome Banner
         banner = FuturisticCard(accent_color=THEME['accent_cyan'])
         banner_layout = QVBoxLayout()
-        title = QLabel(f"⚡ WELCOME TO {APP_NAME.upper()}")
-        title.setStyleSheet(f"font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 1px;")
-        sub = QLabel(f"{APP_SUBTITLE} — Effortless for beginners, powerful for engineers.")
+        title = QLabel(f"⚡ {APP_NAME.upper()} — NEXT-GEN WORKSPACE")
+        title.setStyleSheet("font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: 1px;")
+        sub = QLabel(f"{APP_SUBTITLE} — Bridging deep engineering intelligence with effortless beginner design.")
         sub.setStyleSheet(f"font-size: 13px; color: {THEME['text_secondary']};")
         banner_layout.addWidget(title)
         banner_layout.addWidget(sub)
@@ -43,7 +42,7 @@ class DashboardTab(QWidget):
         self.stat_cpu = StatCard("CPU Load", "0%", unit="Total", color=THEME['accent_cyan'])
         self.stat_ram = StatCard("RAM Usage", "0%", unit="GB", color=THEME['accent_purple'])
         self.stat_disk = StatCard("System Disk", "0%", unit="Used", color=THEME['accent_green'])
-        self.stat_engine = StatCard("Engine Status", "ONLINE", unit="Ready", color=THEME['accent_cyan'])
+        self.stat_engine = StatCard("Neural Cores", "ACTIVE", unit="v2.0", color=THEME['accent_cyan'])
         
         stats_layout.addWidget(self.stat_cpu)
         stats_layout.addWidget(self.stat_ram)
@@ -51,18 +50,20 @@ class DashboardTab(QWidget):
         stats_layout.addWidget(self.stat_engine)
         layout.addLayout(stats_layout)
 
-        # Quick Access Grid
-        grid_card = FuturisticCard("QUICK LAUNCH WORKSPACES")
+        # Quick Access Grid (All modules)
+        grid_card = FuturisticCard("ALL-IN-ONE STUDIOS & WORKSPACES")
         grid = QGridLayout()
-        grid.setSpacing(14)
+        grid.setSpacing(12)
 
         modules = [
-            ("🤖 Machine Learning Studio", "Train classifiers, regressors, auto-EDA, visual confusion matrix, code exporter.", 1, "cyan"),
-            ("💻 Code Studio & Runner", "Write, format, inspect AST, and execute Python code with sub-millisecond benchmarking.", 2, "purple"),
-            ("👁️ Computer Vision Sandbox", "Interactive image processing: Canny edge detection, blur, colormaps, contours.", 3, "green"),
-            ("📝 NLP & Sentiment Lab", "Real-time polarity, readability score, keyword extraction, and cosine similarity.", 4, "cyan"),
-            ("🛠️ Dev Utilities & API Tester", "Regex tester, HTTP/Webhook tester, Base64/Hash/JWT conversion tools.", 5, "purple"),
-            ("⚡ Guided Command Runner", "Automate complex terminal commands with one-click beginner-friendly presets.", 6, "green"),
+            ("🛡️ Defensive OSINT & Recon", "Passive username scout, SSL cert analyzer, HTTP security posture grading (A-F), and DNS explorer.", 1, "cyan"),
+            ("🧠 ML & Neural Net Studio", "Train Neural Networks (MLP), Random Forest, SVM; interactive neuron topology visualizer & loss curve.", 2, "purple"),
+            ("🤖 AI Prompt & LLM Studio", "Connect local Ollama or cloud models, prompt engineering templates for code fix, SQL, and regex.", 3, "green"),
+            ("💻 Code Studio & Runner", "Sub-millisecond Python script runner, AST code structure parser, and interactive console.", 4, "cyan"),
+            ("🎯 Vision & Cyber Face HUD", "OpenCV Face & Eye targeting reticles, real-time live webcam neural filter, and colormaps.", 5, "purple"),
+            ("📝 NLP & Sentiment Lab", "Polarity sentiment scoring, readability grade (Flesch), keyword extraction, and cosine similarity.", 6, "green"),
+            ("🛠️ Dev Utilities & API Tester", "Regex sandbox with capture groups, HTTP/Webhook requester, Base64/Hash/JWT Swiss-Army tools.", 7, "cyan"),
+            ("⚡ Guided Workflow Runner", "Automate complex CLI tasks (port scanner, Git status, Python diagnostic) with zero terminal fuss.", 8, "purple"),
         ]
 
         for i, (mod_title, mod_desc, tab_idx, variant) in enumerate(modules):
@@ -88,7 +89,7 @@ class DashboardTab(QWidget):
             lbl_d.setWordWrap(True)
             lbl_d.setStyleSheet(f"font-size: 11px; color: {THEME['text_secondary']};")
             
-            btn = NeonButton("OPEN MODULE →", variant=variant)
+            btn = NeonButton("LAUNCH MODULE →", variant=variant)
             btn.clicked.connect(lambda _, idx=tab_idx: self._open_tab(idx))
             
             b_layout.addWidget(lbl_name)
@@ -100,13 +101,14 @@ class DashboardTab(QWidget):
         grid_card.addLayout(grid)
         layout.addWidget(grid_card)
 
-        # Beginner Tips Card
-        tips_card = FuturisticCard("PRO TIPS FOR BEGINNERS")
+        # Beginner & Pro Tips Card
+        tips_card = FuturisticCard("INTELLIGENT WORKFLOW CHEATSHEET")
         tips_layout = QVBoxLayout()
         tips = [
-            "• **Zero Coding Machine Learning**: Click 'ML Studio', select 'Iris' or 'Customer Churn' sample, and hit 'Train Model' to see instant accuracy and visual confusion matrix!",
-            "• **Generated Code**: Click 'Generate Python Code' in the ML Studio to copy ready-to-run code for your own projects.",
-            "• **Regex & API Sandbox**: Use the 'Dev Utilities' tab to inspect JSON payloads, format code, and test regex matches with real-time feedback."
+            "• **Defensive OSINT**: Use 'OSINT & Recon' to audit website security headers and discover missing defenses like CSP or HSTS.",
+            "• **Neural Network Topology**: In 'ML Studio', train the 'Neural Network (MLP)' model to see the interactive synaptic node graph update in real-time.",
+            "• **Cyber Face Detection**: In 'Vision & Face HUD', select 'Cyber Face & Eye HUD' or toggle 'Live Webcam' for instant holographic targeting.",
+            "• **Local AI Models**: Run `ollama run llama3` on your PC, then click 'Detect Ollama' in 'AI Prompt Studio' for private, local LLM generation."
         ]
         for tip in tips:
             lbl_tip = QLabel(tip)

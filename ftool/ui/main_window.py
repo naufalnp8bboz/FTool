@@ -1,13 +1,14 @@
 import os
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QPushButton,
-    QLabel, QStackedWidget, QFrame, QButtonGroup
+    QLabel, QStackedWidget, QFrame, QButtonGroup, QComboBox
 )
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QPixmap
 from ftool.config import (
-    APP_NAME, APP_SUBTITLE, APP_VERSION, AUTHOR, LOGO_PATH, ICON_PATH, THEME, GLOBAL_QSS
+    APP_NAME, APP_SUBTITLE, APP_VERSION, AUTHOR, LOGO_PATH, ICON_PATH, THEME, THEMES, get_qss
 )
+from ftool.ui.components import AnimatedWaveformWidget
 from ftool.ui.tabs.tab_dashboard import DashboardTab
 from ftool.ui.tabs.tab_ml_studio import MLStudioTab
 from ftool.ui.tabs.tab_code_studio import CodeStudioTab
@@ -15,13 +16,15 @@ from ftool.ui.tabs.tab_cv_sandbox import CVSandboxTab
 from ftool.ui.tabs.tab_nlp_tools import NLPToolsTab
 from ftool.ui.tabs.tab_dev_tools import DevToolsTab
 from ftool.ui.tabs.tab_runner import RunnerTab
+from ftool.ui.tabs.tab_recon import ReconTab
+from ftool.ui.tabs.tab_llm_studio import LLMStudioTab
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} — {APP_SUBTITLE}")
-        self.resize(1280, 820)
-        self.setMinimumSize(1024, 700)
+        self.resize(1340, 860)
+        self.setMinimumSize(1080, 720)
 
         # Set Icon
         if os.path.exists(ICON_PATH):
@@ -29,8 +32,8 @@ class MainWindow(QMainWindow):
         elif os.path.exists(LOGO_PATH):
             self.setWindowIcon(QIcon(LOGO_PATH))
 
-        # Apply Global QSS
-        self.setStyleSheet(GLOBAL_QSS)
+        # Apply Initial Global QSS
+        self.setStyleSheet(get_qss(THEME['accent_cyan']))
 
         # Central Widget & Root Layout
         central_widget = QWidget()
@@ -56,20 +59,25 @@ class MainWindow(QMainWindow):
         # Stacked Widget for Tabs
         self.stacked_widget = QStackedWidget()
         self.dashboard_tab = DashboardTab(parent_window=self)
+        self.recon_tab = ReconTab()
         self.ml_tab = MLStudioTab()
+        self.llm_tab = LLMStudioTab()
         self.code_tab = CodeStudioTab()
         self.cv_tab = CVSandboxTab()
         self.nlp_tab = NLPToolsTab()
         self.dev_tab = DevToolsTab()
         self.runner_tab = RunnerTab()
 
-        self.stacked_widget.addWidget(self.dashboard_tab)
-        self.stacked_widget.addWidget(self.ml_tab)
-        self.stacked_widget.addWidget(self.code_tab)
-        self.stacked_widget.addWidget(self.cv_tab)
-        self.stacked_widget.addWidget(self.nlp_tab)
-        self.stacked_widget.addWidget(self.dev_tab)
-        self.stacked_widget.addWidget(self.runner_tab)
+        # Add tabs to stacked widget
+        self.stacked_widget.addWidget(self.dashboard_tab)   # 0
+        self.stacked_widget.addWidget(self.recon_tab)       # 1
+        self.stacked_widget.addWidget(self.ml_tab)          # 2
+        self.stacked_widget.addWidget(self.llm_tab)         # 3
+        self.stacked_widget.addWidget(self.code_tab)        # 4
+        self.stacked_widget.addWidget(self.cv_tab)          # 5
+        self.stacked_widget.addWidget(self.nlp_tab)         # 6
+        self.stacked_widget.addWidget(self.dev_tab)         # 7
+        self.stacked_widget.addWidget(self.runner_tab)      # 8
 
         content_layout.addWidget(self.stacked_widget)
         root_layout.addWidget(content_area)
@@ -79,7 +87,7 @@ class MainWindow(QMainWindow):
 
     def _build_sidebar(self) -> QWidget:
         sidebar = QFrame()
-        sidebar.setFixedWidth(220)
+        sidebar.setFixedWidth(230)
         sidebar.setStyleSheet(f"""
             QFrame {{
                 background-color: {THEME['bg_dark']};
@@ -87,8 +95,8 @@ class MainWindow(QMainWindow):
             }}
         """)
         layout = QVBoxLayout(sidebar)
-        layout.setContentsMargins(14, 20, 14, 16)
-        layout.setSpacing(6)
+        layout.setContentsMargins(14, 18, 14, 16)
+        layout.setSpacing(5)
 
         # Brand header with Logo
         brand_layout = QHBoxLayout()
@@ -104,7 +112,7 @@ class MainWindow(QMainWindow):
         title_box = QVBoxLayout()
         title_box.setSpacing(1)
         lbl_brand = QLabel(APP_NAME)
-        lbl_brand.setStyleSheet("font-size: 16px; font-weight: 800; color: #ffffff; letter-spacing: 2px; border: none;")
+        lbl_brand.setStyleSheet("font-size: 17px; font-weight: 800; color: #ffffff; letter-spacing: 2px; border: none;")
         lbl_credit = QLabel(f"by {AUTHOR}")
         lbl_credit.setStyleSheet(f"font-size: 10px; font-weight: 700; color: {THEME['accent_cyan']}; border: none;")
         title_box.addWidget(lbl_brand)
@@ -114,7 +122,7 @@ class MainWindow(QMainWindow):
         brand_layout.addStretch()
         layout.addLayout(brand_layout)
 
-        layout.addSpacing(20)
+        layout.addSpacing(16)
 
         # Nav Buttons
         self.nav_group = QButtonGroup(self)
@@ -123,28 +131,30 @@ class MainWindow(QMainWindow):
 
         nav_items = [
             ("📊  Dashboard", 0),
-            ("🤖  ML Studio", 1),
-            ("💻  Code Studio", 2),
-            ("👁️  Vision Sandbox", 3),
-            ("📝  NLP & Sentiment", 4),
-            ("🛠️  Dev Utilities", 5),
-            ("⚡  Guided Runner", 6),
+            ("🛡️  OSINT & Recon", 1),
+            ("🧠  ML & Neural Net", 2),
+            ("🤖  AI Prompt & LLM", 3),
+            ("💻  Code Studio", 4),
+            ("🎯  Vision & Face HUD", 5),
+            ("📝  NLP & Sentiment", 6),
+            ("🛠️  Dev Utilities", 7),
+            ("⚡  Guided Runner", 8),
         ]
 
         for text, idx in nav_items:
             btn = QPushButton(text)
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            btn.setFixedHeight(40)
+            btn.setFixedHeight(38)
             btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: transparent;
                     border: none;
                     border-radius: 6px;
-                    padding-left: 14px;
+                    padding-left: 12px;
                     text-align: left;
                     color: {THEME['text_secondary']};
-                    font-size: 13px;
+                    font-size: 12px;
                     font-weight: 600;
                 }}
                 QPushButton:hover {{
@@ -165,7 +175,7 @@ class MainWindow(QMainWindow):
         layout.addStretch()
 
         # Footer info
-        footer = QLabel(f"FTool v{APP_VERSION} Open Source\nReady for Developers")
+        footer = QLabel(f"FTool v{APP_VERSION} Pro\nFTech Open Architecture")
         footer.setStyleSheet(f"font-size: 10px; color: {THEME['text_muted']}; border: none; padding: 4px;")
         layout.addWidget(footer)
 
@@ -173,7 +183,7 @@ class MainWindow(QMainWindow):
 
     def _build_top_bar(self) -> QWidget:
         top_bar = QFrame()
-        top_bar.setFixedHeight(50)
+        top_bar.setFixedHeight(54)
         top_bar.setStyleSheet(f"""
             QFrame {{
                 background-color: {THEME['bg_dark']};
@@ -182,6 +192,7 @@ class MainWindow(QMainWindow):
         """)
         layout = QHBoxLayout(top_bar)
         layout.setContentsMargins(20, 0, 20, 0)
+        layout.setSpacing(16)
 
         self.lbl_current_tab = QLabel("DASHBOARD OVERVIEW")
         self.lbl_current_tab.setStyleSheet("font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 1px; border: none;")
@@ -189,8 +200,25 @@ class MainWindow(QMainWindow):
 
         layout.addStretch()
 
+        # Animated Telemetry Waveform Widget
+        self.waveform = AnimatedWaveformWidget()
+        layout.addWidget(self.waveform)
+
+        # Theme Selector Dropdown
+        theme_box = QHBoxLayout()
+        theme_box.setSpacing(6)
+        lbl_theme = QLabel("Accent:")
+        lbl_theme.setStyleSheet(f"font-size: 11px; color: {THEME['text_secondary']}; border: none;")
+        self.combo_theme = QComboBox()
+        self.combo_theme.addItems(["Cyan", "Violet", "Matrix", "Solar"])
+        self.combo_theme.setFixedWidth(85)
+        self.combo_theme.currentTextChanged.connect(self._change_theme)
+        theme_box.addWidget(lbl_theme)
+        theme_box.addWidget(self.combo_theme)
+        layout.addLayout(theme_box)
+
         # System Status Pill
-        lbl_status = QLabel("● SYSTEM READY")
+        lbl_status = QLabel("● ENGINE ONLINE")
         lbl_status.setStyleSheet(f"""
             color: {THEME['accent_green']};
             font-size: 11px;
@@ -204,6 +232,12 @@ class MainWindow(QMainWindow):
 
         return top_bar
 
+    def _change_theme(self, theme_name: str):
+        if theme_name in THEMES:
+            accent = THEMES[theme_name]["accent"]
+            THEME["accent_cyan"] = accent
+            self.setStyleSheet(get_qss(accent))
+
     def switch_tab(self, index: int):
         self.stacked_widget.setCurrentIndex(index)
         for i, btn in enumerate(self.nav_buttons):
@@ -211,12 +245,14 @@ class MainWindow(QMainWindow):
 
         tab_names = [
             "DASHBOARD OVERVIEW",
-            "MACHINE LEARNING STUDIO",
+            "DEFENSIVE OSINT & NETWORK RECON STUDIO",
+            "MACHINE LEARNING & NEURAL NETWORK STUDIO",
+            "AI PROMPT ENGINEERING & LLM STUDIO",
             "PYTHON CODE STUDIO & AST INSPECTOR",
-            "COMPUTER VISION FILTER SANDBOX",
+            "COMPUTER VISION & CYBER FACE HUD",
             "NLP, SENTIMENT & SIMILARITY LAB",
             "DEVELOPER UTILITIES & API TESTER",
-            "GUIDED WORKFLOW RUNNER"
+            "GUIDED WORKFLOW AUTOMATION RUNNER"
         ]
         if index < len(tab_names):
             self.lbl_current_tab.setText(tab_names[index])

@@ -2,77 +2,87 @@
   <img src="assets/logo.png" alt="FTech FTool Logo" width="220" />
 </p>
 
-<h1 align="center">⚡ FTool</h1>
+<h1 align="center">⚡ FTool v2.0 Pro</h1>
 
 <p align="center">
-  <b>Futuristic All-in-One Coding & Machine Learning Studio for Windows</b><br>
-  <i>Designed for everyone: effortless for beginners, powerful for engineers.</i>
+  <b>Next-Gen Dev, OSINT & Machine Learning Suite for Windows</b><br>
+  <i>Empowering beginners with automated intelligence, engineered with pro depth.</i>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Platform-Windows-00e5ff?style=for-the-badge&logo=windows" />
   <img src="https://img.shields.io/badge/Python-3.10+-7c4dff?style=for-the-badge&logo=python" />
-  <img src="https://img.shields.io/badge/UI-PyQt6_Modern_Dark-00e676?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00e676?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Theme-Multi--Accent_Dynamic-f59e0b?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/License-MIT-38bdf8?style=for-the-badge" />
 </p>
 
 ---
 
-## 🌟 Philosophy
+## 🌟 Vision & Philosophy
 
-Most developer and machine learning tools today fall into one of two extremes:
-1. **Oversimplified** tools that lack real capabilities and real-world usefulness.
-2. **Overcomplicated** terminal tools with intimidating flags, manual pip dependencies, and opaque output formats that overwhelm newcomers.
+Average OSINT and developer tool repositories on GitHub are either:
+- **Trivially simplistic** without real computational depth, or
+- **Overcomplicated terminal nightmares** with conflicting dependencies and opaque command line arguments.
 
-**FTool changes that.** Built with a clean, minimalist, and futuristic interface, FTool puts complex machine learning pipelines, AST parsers, computer vision filters, and developer toolkits behind intuitive, readable, one-click controls. **The program does the heavy lifting, while you stay in full control.**
+**FTool solves this.** Designed with a clean, minimalist, and futuristic interface, FTool puts complex machine learning pipelines, neural network topologies, computer vision HUD targeting, local LLMs, and defensive reconnaissance behind intuitive, readable, one-click controls. **The program does the heavy lifting, while you stay in complete control.**
 
 ---
 
-## ✨ Key Features
+## 🚀 9 All-in-One Studios
 
-### 1. 🎬 3-Second Seamless Splash Screen
-- Smooth, animated fade-in and fade-out splash screen featuring the **FTech** emblem and real-time core initialization progress.
+### 1. 🎬 3-Second Cyberpunk Boot Sequencer
+- Smooth animated fade splash screen with your **FTech** emblem.
+- Live simulated kernel & neural initialization telemetry stream.
 
-### 2. 🤖 Machine Learning Studio (Zero-Code to Pro)
-- **Auto-EDA**: Instant dataset shape, data types, missing value audit, and summary statistics.
-- **Built-in Datasets**: Explore *Iris (Classification)*, *Customer Churn*, *Wine*, or *Diabetes (Regression)* with 1 click.
-- **Custom Uploads**: Supports `.csv`, `.json`, `.xlsx`, and `.xls`.
-- **Model Training**: Train Random Forest, Gradient Boosting, SVM, Logistic Regression, or KNN with real-time test/train splits.
-- **Visual Diagnostics**: Interactive Confusion Matrix heatmaps and Feature Importance bar charts rendered natively.
-- **Live Inference Sandbox**: Adjust inputs on the fly to get instant predictions and confidence probabilities.
-- **Python Code Generator**: Export clean, standard Python scripts replicating the exact model pipeline.
-- **Model Export**: Save models as `.joblib` files ready for deployment.
+### 2. 🛡️ Defensive OSINT & Network Reconnaissance Studio
+- **Username Footprint Scout**: Passive search across GitHub, Reddit, GitLab, Dev.to, DockerHub, HackerNews, Medium with one-click profile access.
+- **Defensive HTTP Header Auditor**: Audits website defense headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options) and assigns a posture grade (A+ to F) with remediation advice.
+- **SSL/TLS Certificate Intelligence**: Tracks days remaining until expiration, issuer, cipher suite, and TLS protocol version.
+- **DNS & IP Geolocation**: Instant A records, Canonical FQDN, country, city, ISP, and ASN mapping.
 
-### 3. 💻 Python Code Studio & AST Inspector
-- Built-in futuristic code editor with line numbering and Python syntax highlighting.
-- **Sub-millisecond Runner**: Isolated thread execution with captured `stdout`, `stderr`, and precise latency benchmarking.
-- **AST Inspector**: Breaks down code structure into functions, argument lists, docstrings, classes, and imported modules.
-- **Preset Library**: Ready-to-run templates for Data Science, Algorithms, and Quickstarts.
+### 3. 🧠 Machine Learning & Neural Network Studio
+- **Interactive Neural Network Topology**: Live diagram drawing input nodes, hidden layers, output classes, and colored synaptic weights.
+- **Auto-EDA**: Instant sample size, feature counts, and interactive preview table.
+- **Algorithms**: Multi-Layer Perceptron (MLP Neural Net), Random Forest, Gradient Boosting, SVM, Logistic/Linear Regression, KNN.
+- **Visual Diagnostics**: Interactive Confusion Matrix heatmaps and Epoch Loss curves.
+- **Live Inference Sandbox & Code Exporter**: Single-row live prediction and ready-to-run Python code generation.
 
-### 4. 👁️ Computer Vision Sandbox
-- Interactive OpenCV image processing lab with side-by-side comparison viewports.
-- Real-time filters: **Canny Edge Detection**, **Gaussian Blur**, **Binary & Adaptive Thresholding**, **Contour Extractor**, and **Cyber Colormaps (Jet, Ocean, Hot)**.
-- Adjustable parameter sliders with instant preview and one-click image export.
+### 4. 🤖 AI Prompt Engineering & LLM Studio
+- **Local Ollama Auto-Detection**: Connects to `http://localhost:11434` with 1 click.
+- **Prompt Engineering Templates**: Bug explainer, code refactorer, SQL generator, regex builder, and ML explainability.
+- Live token counter and latency measurement.
 
-### 5. 📝 NLP & Sentiment Intelligence
-- Real-time text sentiment polarity and subjectivity analysis.
-- **Flesch Reading Ease** readability scoring.
-- Automated keyword frequency extraction and token statistics.
-- **Semantic Text Similarity**: Cosine similarity calculation between two text passages using TF-IDF vectorization.
+### 5. 💻 Python Code Studio & AST Inspector
+- Multi-language code editor with custom Python syntax highlighting and line numbers.
+- Sub-millisecond execution engine with isolated thread benchmarking.
+- **AST Inspector**: Breaks down code into functions, argument lists, docstrings, classes, and imports.
 
-### 6. 🛠️ Dev Utilities & Swiss-Army Knife
-- **Regex Sandbox**: Test patterns with flags, view matched tokens, character spans, and capture groups.
+### 6. 🎯 Computer Vision & Cyber Face HUD
+- **Face & Eye Targeting Reticles**: Real-time OpenCV Haar Cascade face detection with glowing cyan/violet corner brackets and crosshairs.
+- **Live Webcam Stream**: Interactive 30 FPS neural filter stream directly from your PC camera.
+- **Filters**: Canny edge detection, Gaussian blur, thresholding, contour extraction, and Cyber Colormaps (Ocean, Jet, Hot).
+
+### 7. 📝 NLP & Sentiment Intelligence
+- Polarity sentiment score and readability metrics (**Flesch Reading Ease**).
+- Keyword extraction and lexical token statistics.
+- **Cosine Semantic Similarity**: Compares two text passages using TF-IDF vectorization.
+
+### 8. 🛠️ Dev Utilities & API Tester
+- **Regex Sandbox**: Interactive pattern matching with capture group breakdowns.
 - **HTTP / Webhook Tester**: Test `GET`, `POST`, `PUT`, `DELETE` endpoints with custom payloads, status code badges, and latency benchmarks.
-- **Encoders & Crypto Hashes**: Base64, MD5, SHA-256, URL encode/decode, Hex, and instant JWT token decoders.
-- **JSON Beautifier**: Format and validate nested JSON structures.
+- **Crypto & Encoders**: Base64, MD5, SHA-256, URL encoding, Hex, and instant JWT token decoders.
+- **JSON Beautifier**: Format and validate nested JSON.
 
-### 7. ⚡ Guided Workflow Runner
-- Automate complex CLI workflows with zero terminal fuss:
-  - Python runtime diagnostics and environment audit.
-  - Local port scanner (`3000`, `5000`, `8000`, `8080`) to check running web services.
-  - Git repository quick status and commit logs.
-  - Outdated pip package checker.
-  - Custom command console with styled output logging.
+### 9. ⚡ Guided Workflow Runner
+- Automate complex CLI workflows (Python diagnostics, local port scanner `3000-8080`, Git status) with zero terminal fuss.
+
+---
+
+## 🎨 UI Enhancements
+- **Live Animated Telemetry Waveform**: Real-time animated telemetry wave in the top bar.
+- **Dynamic Accent Switcher**: Instant switching between **Neon Cyan**, **Cyber Violet**, **Matrix Green**, and **Solar Gold**.
+- **Minimalist Cyberpunk Dark Theme**: Deep dark slate with neon accents and clean typography.
 
 ---
 
@@ -82,7 +92,7 @@ Most developer and machine learning tools today fall into one of two extremes:
 - Windows 10 or Windows 11
 - Python 3.10+ installed ([python.org](https://www.python.org/))
 
-### Installation
+### Installation & Launch
 ```bash
 # 1. Clone the repository
 git clone https://github.com/your-username/FTool.git
@@ -98,63 +108,7 @@ python main.py
 
 ---
 
-## 📦 Packaging Standalone Windows Executable (.exe)
-
-FTool includes an automated PyInstaller builder:
-
-```bash
-python build_exe.py
-```
-*(Or simply double-click `build.bat`)*
-
-The standalone compiled executable will be generated at:
-```
-dist/FTool/FTool.exe
-```
-
----
-
-## 📁 Project Structure
-
-```
-FTool/
-├── assets/
-│   ├── logo.png               # FTech Emblem Logo
-│   └── app_icon.ico           # Windows Application Icon
-├── ftool/
-│   ├── __init__.py
-│   ├── config.py              # Futuristic Cyber Theme, QSS, Palettes
-│   ├── core/
-│   │   ├── ml_engine.py       # Scikit-learn training, EDA, and export
-│   │   ├── cv_engine.py       # OpenCV filter pipelines
-│   │   ├── code_engine.py     # Code execution, AST analysis, regex, HTTP
-│   │   ├── nlp_engine.py      # Sentiment, readability, and similarity
-│   │   └── utils.py           # System resource monitor (CPU, RAM, Disk)
-│   └── ui/
-│       ├── components.py      # Custom Cards, Buttons, DarkPlotCanvas, Highlighters
-│       ├── splash.py          # 3-Second animated fade splash screen
-│       ├── main_window.py     # Window chrome, sidebar, and tab stack
-│       └── tabs/
-│           ├── tab_dashboard.py
-│           ├── tab_ml_studio.py
-│           ├── tab_code_studio.py
-│           ├── tab_cv_sandbox.py
-│           ├── tab_nlp_tools.py
-│           ├── tab_dev_tools.py
-│           └── tab_runner.py
-├── tests/                     # Automated engine and GUI verification suite
-├── main.py                    # Entry point
-├── build_exe.py               # PyInstaller packaging script
-├── run.bat                    # One-click Windows runner
-├── build.bat                  # One-click Windows compiler
-├── requirements.txt           # Project dependencies
-├── LICENSE                    # MIT License
-└── README.md                  # Project documentation
-```
-
----
-
 ## 👤 Credits & Author
 
 - **Author & Design**: **FTech**
-- **Repository**: Open-source on GitHub under the **MIT License**.
+- **License**: Open-source under the **MIT License**.

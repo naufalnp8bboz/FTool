@@ -1,13 +1,158 @@
+import math
 import re
 from PyQt6.QtWidgets import (
     QWidget, QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
     QPlainTextEdit, QTextEdit, QSizePolicy
 )
-from PyQt6.QtCore import Qt, QRect, QSize
-from PyQt6.QtGui import QColor, QPainter, QTextFormat, QFont, QSyntaxHighlighter, QTextCharFormat
+from PyQt6.QtCore import Qt, QRect, QSize, QTimer, QPointF
+from PyQt6.QtGui import (
+    QColor, QPainter, QTextFormat, QFont, QSyntaxHighlighter,
+    QTextCharFormat, QPen, QBrush, QLinearGradient
+)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from ftool.config import THEME
+
+class AnimatedWaveformWidget(QWidget):
+    """High-tech cyberpunk telemetry waveform monitor for the header bar."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(140, 32)
+        self.phase = 0.0
+        self.timer = QTimer(self)
+        self.timer.setInterval(40)
+        self.timer.timeout.connect(self._update_wave)
+        self.timer.start()
+
+    def _update_wave(self):
+        self.phase += 0.15
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        w = self.width()
+        h = self.height()
+        mid_y = h / 2.0
+
+        # Draw subtle grid
+        pen_grid = QPen(QColor(THEME['border_subtle']))
+        pen_grid.setWidth(1)
+        painter.setPen(pen_grid)
+        painter.drawLine(0, int(mid_y), w, int(mid_y))
+
+        # Draw animated sine telemetry wave
+        pen_wave = QPen(QColor(THEME['accent_cyan']))
+        pen_wave.setWidth(2)
+        painter.setPen(pen_wave)
+
+        prev_x = 0
+        prev_y = mid_y
+        for x in range(0, w, 3):
+            # Combined harmonics
+            rad = (x / 14.0) + self.phase
+            y = mid_y + math.sin(rad) * 9.0 + math.cos(rad * 1.7) * 3.0
+            painter.drawLine(int(prev_x), int(prev_y), int(x), int(y))
+            prev_x = x
+            prev_y = y
+
+
+class NeuralNetworkGraphWidget(QWidget):
+    """Interactive visualizer for multi-layer perceptron topology and synapse weights."""
+    def __init__(self, layer_sizes=(4, 6, 3), parent=None):
+        super().__init__(parent)
+        self.layer_sizes = layer_sizes
+        self.setMinimumHeight(240)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+    def set_layers(self, layer_sizes):
+        self.layer_sizes = layer_sizes
+        self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        w = self.width()
+        h = self.height()
+
+        # Background
+        painter.fillRect(0, 0, w, h, QColor(THEME['bg_dark']))
+
+        if not self.layer_sizes:
+            return
+
+        num_layers = len(self.layer_sizes)
+        x_spacing = (w - 80) / max(1, num_layers - 1)
+
+        # Calculate node positions
+        layer_positions = []
+        for l_idx, count in enumerate(self.layer_sizes):
+            x = 40 + l_idx * x_spacing
+            y_spacing = (h - 60) / max(1, count)
+            nodes = []
+            for n_idx in range(count):
+                y = 30 + (n_idx + 0.5) * y_spacing
+                nodes.append((x, y))
+            layer_positions.append(nodes)
+
+        # Draw Synapse Lines between adjacent layers
+        for l_idx in range(num_layers - 1):
+            left_nodes = layer_positions[l_idx]
+            right_nodes = layer_positions[l_idx + 1]
+
+            for i, (x1, y1) in enumerate(left_nodes):
+                for j, (x2, y2) in enumerate(right_nodes):
+                    # Deterministic simulated weight color
+                    weight_val = math.sin(i * 1.5 + j * 2.3 + l_idx)
+                    if weight_val > 0:
+                        color = QColor(0, 229, 255, int(abs(weight_val) * 140 + 40)) # Cyan
+                    else:
+                        color = QColor(124, 77, 255, int(abs(weight_val) * 140 + 40)) # Purple
+
+                    pen = QPen(color)
+                    pen.setWidthF(max(1.0, abs(weight_val) * 2.2))
+                    painter.setPen(pen)
+                    painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
+
+        # Draw Nodes
+        node_radius = 12
+        for l_idx, nodes in enumerate(layer_positions):
+            for n_idx, (x, y) in enumerate(nodes):
+                # Node Glow
+                glow_color = QColor(0, 229, 255, 60) if l_idx == 0 else (
+                    QColor(0, 230, 118, 90) if l_idx == num_layers - 1 else QColor(124, 77, 255, 70)
+                )
+                painter.setBrush(QBrush(glow_color))
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.drawEllipse(QPointF(x, y), node_radius + 4, node_radius + 4)
+
+                # Node Body
+                body_color = QColor(THEME['bg_card'])
+                border_color = QColor(THEME['accent_cyan']) if l_idx == 0 else (
+                    QColor(THEME['accent_green']) if l_idx == num_layers - 1 else QColor(THEME['accent_purple'])
+                )
+                painter.setBrush(QBrush(body_color))
+                painter.setPen(QPen(border_color, 2))
+                painter.drawEllipse(QPointF(x, y), node_radius, node_radius)
+
+                # Text index inside node
+                painter.setPen(QColor(THEME['text_primary']))
+                font = QFont("Consolas", 8, QFont.Weight.Bold)
+                painter.setFont(font)
+                label = f"x{n_idx+1}" if l_idx == 0 else (f"y{n_idx+1}" if l_idx == num_layers - 1 else f"h{n_idx+1}")
+                painter.drawText(QRect(int(x - 12), int(y - 8), 24, 16), Qt.AlignmentFlag.AlignCenter, label)
+
+        # Layer labels at bottom
+        painter.setPen(QColor(THEME['text_secondary']))
+        font_lbl = QFont("Segoe UI", 9, QFont.Weight.Bold)
+        painter.setFont(font_lbl)
+        for l_idx, nodes in enumerate(layer_positions):
+            x = nodes[0][0]
+            name = "Input Layer" if l_idx == 0 else ("Output Layer" if l_idx == num_layers - 1 else f"Hidden Layer {l_idx}")
+            painter.drawText(QRect(int(x - 60), h - 22, 120, 20), Qt.AlignmentFlag.AlignCenter, name)
+
 
 class FuturisticCard(QFrame):
     """Sleek minimalist dark card with subtle glowing borders."""
@@ -102,7 +247,7 @@ class StatCard(QFrame):
 
         val_layout = QHBoxLayout()
         self.lbl_value = QLabel(value)
-        self.lbl_value.setStyleSheet(f"font-size: 20px; font-weight: 700; color: {color}; border: none;")
+        self.lbl_value.setStyleSheet(f"font-size: 19px; font-weight: 700; color: {color}; border: none;")
         val_layout.addWidget(self.lbl_value)
 
         if unit:
@@ -170,7 +315,6 @@ class LineNumberArea(QWidget):
 
 
 class FuturisticCodeEditor(QPlainTextEdit):
-    """Futuristic code editor with line numbers and Python syntax coloring."""
     def __init__(self, parent=None):
         super().__init__(parent)
         self.line_number_area = LineNumberArea(self)
@@ -243,8 +387,7 @@ class FuturisticCodeEditor(QPlainTextEdit):
 
 
 class DarkPlotCanvas(FigureCanvas):
-    """Embeddable Matplotlib canvas with dark futuristic theme."""
-    def __init__(self, width=5, height=4, dpi=100, parent=None):
+    def __init__(self, width=5, height=3.5, dpi=100, parent=None):
         self.fig = Figure(figsize=(width, height), dpi=dpi, facecolor=THEME['bg_card'])
         super().__init__(self.fig)
         self.setParent(parent)

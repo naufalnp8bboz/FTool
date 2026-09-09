@@ -12,9 +12,10 @@ from sklearn.metrics import (
 )
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.neural_network import MLPClassifier, MLPRegressor
 from sklearn.svm import SVC, SVR
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.datasets import load_iris, load_wine, load_diabetes
+from sklearn.datasets import load_iris, load_wine, load_diabetes, make_classification, make_regression
 
 class MLEngine:
     def __init__(self):
@@ -25,9 +26,11 @@ class MLEngine:
         self.target_encoder: Optional[LabelEncoder] = None
         self.feature_names: List[str] = []
         self.target_name: str = ""
-        self.task_type: str = "classification" # "classification" or "regression"
+        self.task_type: str = "classification"
         self.last_metrics: Dict[str, Any] = {}
         self.classes_: List[str] = []
+        self.network_layers: List[int] = []
+        self.loss_curve: List[float] = []
 
     def load_sample_dataset(self, name: str) -> pd.DataFrame:
         """Loads a built-in beginner-friendly dataset."""
@@ -51,7 +54,6 @@ class MLEngine:
             self.target_name = "target"
             self.task_type = "regression"
         elif name.lower() == "customer_churn":
-            # Synthetic realistic customer dataset
             np.random.seed(42)
             n = 300
             ages = np.random.randint(18, 70, size=n)
@@ -69,12 +71,19 @@ class MLEngine:
             })
             self.target_name = "Churned"
             self.task_type = "classification"
+        elif name.lower() == "synthetic_cyber":
+            X, y = make_classification(n_samples=400, n_features=5, n_informative=4, n_redundant=1, n_classes=2, random_state=42)
+            cols = ["PacketRate", "Entropy", "PayloadSize", "ConnectionDuration", "PortVariance"]
+            df = pd.DataFrame(X, columns=cols).round(3)
+            df["TrafficClass"] = ["Anomalous" if val == 1 else "Normal" for val in y]
+            self.df = df
+            self.target_name = "TrafficClass"
+            self.task_type = "classification"
         else:
             raise ValueError(f"Unknown sample dataset: {name}")
         return self.df
 
     def load_file(self, filepath: str) -> pd.DataFrame:
-        """Loads custom CSV or JSON dataset."""
         if filepath.endswith(".csv"):
             self.df = pd.read_csv(filepath)
         elif filepath.endswith(".json"):
@@ -86,7 +95,6 @@ class MLEngine:
         return self.df
 
     def get_auto_eda(self) -> Dict[str, Any]:
-        """Generates statistical overview, missing values, datatypes."""
         if self.df is None:
             return {}
         
@@ -100,7 +108,6 @@ class MLEngine:
             "preview_head": self.df.head(10).to_dict(orient="records"),
         }
 
-        # Numeric correlation
         numeric_df = self.df.select_dtypes(include=[np.number])
         if not numeric_df.empty and numeric_df.shape[1] > 1:
             info["correlations"] = numeric_df.corr().round(3).to_dict()
@@ -113,12 +120,11 @@ class MLEngine:
         self,
         target_col: str,
         features: Optional[List[str]] = None,
-        model_name: str = "Random Forest",
+        model_name: str = "Neural Network (MLP)",
         task_type: str = "classification",
         test_size: float = 0.2,
         random_state: int = 42
     ) -> Dict[str, Any]:
-        """Trains chosen model and returns metrics."""
         if self.df is None:
             raise ValueError("No dataset loaded.")
         
@@ -129,7 +135,6 @@ class MLEngine:
             features = [col for col in self.df.columns if col != target_col]
         self.feature_names = features
 
-        # Preprocessing
         clean_df = self.df[features + [target_col]].dropna().copy()
         if len(clean_df) < 10:
             raise ValueError("Dataset has too few rows after dropping missing values.")
@@ -162,36 +167,50 @@ class MLEngine:
             X_scaled, y, test_size=test_size, random_state=random_state
         )
 
-        # Select model algorithm
+        # Algorithm selection
+        self.loss_curve = []
         if self.task_type == "classification":
-            if model_name == "Random Forest":
+            if model_name == "Neural Network (MLP)":
+                model = MLPClassifier(hidden_layer_sizes=(8, 6), max_iter=250, random_state=random_state)
+            elif model_name == "Random Forest":
                 model = RandomForestClassifier(n_estimators=100, random_state=random_state)
+            elif model_name == "Gradient Boosting":
+                model = GradientBoostingClassifier(random_state=random_state)
             elif model_name == "Logistic Regression":
                 model = LogisticRegression(max_iter=500, random_state=random_state)
             elif model_name == "SVM":
                 model = SVC(probability=True, random_state=random_state)
             elif model_name == "KNN":
                 model = KNeighborsClassifier(n_neighbors=5)
-            elif model_name == "Gradient Boosting":
-                model = GradientBoostingClassifier(random_state=random_state)
             else:
                 model = RandomForestClassifier(random_state=random_state)
         else: # Regression
-            if model_name == "Random Forest":
+            if model_name == "Neural Network (MLP)":
+                model = MLPRegressor(hidden_layer_sizes=(8, 6), max_iter=250, random_state=random_state)
+            elif model_name == "Random Forest":
                 model = RandomForestRegressor(n_estimators=100, random_state=random_state)
             elif model_name == "Linear Regression":
                 model = LinearRegression()
-            elif model_name == "SVR":
-                model = SVR()
             elif model_name == "Gradient Boosting":
                 model = GradientBoostingRegressor(random_state=random_state)
+            elif model_name == "SVR":
+                model = SVR()
             else:
                 model = RandomForestRegressor(random_state=random_state)
 
         model.fit(X_train, y_train)
         self.trained_model = model
 
-        # Evaluation
+        # Network topology
+        input_dim = min(len(features), 6)
+        output_dim = len(self.classes_) if self.task_type == "classification" else 1
+        if isinstance(model, (MLPClassifier, MLPRegressor)):
+            self.network_layers = [input_dim, 8, 6, min(output_dim, 5)]
+            if hasattr(model, "loss_curve_"):
+                self.loss_curve = [float(l) for l in model.loss_curve_]
+        else:
+            self.network_layers = [input_dim, 6, min(output_dim, 5)]
+
         y_pred = model.predict(X_test)
 
         if self.task_type == "classification":
@@ -218,6 +237,8 @@ class MLEngine:
                 "confusion_matrix": cm,
                 "classes": self.classes_,
                 "feature_importances": feature_importances,
+                "network_layers": self.network_layers,
+                "loss_curve": self.loss_curve
             }
         else:
             r2 = float(r2_score(y_test, y_pred))
@@ -238,16 +259,16 @@ class MLEngine:
                 "mse": round(mse, 4),
                 "mae": round(mae, 4),
                 "feature_importances": feature_importances,
+                "network_layers": self.network_layers,
+                "loss_curve": self.loss_curve
             }
 
         return self.last_metrics
 
     def predict_single(self, input_dict: Dict[str, Any]) -> Dict[str, Any]:
-        """Runs single-instance inference."""
         if self.trained_model is None or self.scaler is None:
             raise ValueError("No trained model available.")
 
-        # Create row
         row = pd.DataFrame([input_dict])
         for col in self.feature_names:
             if col not in row.columns:
@@ -255,7 +276,6 @@ class MLEngine:
 
         row = row[self.feature_names].copy()
 
-        # Apply encoders
         for col, le in self.label_encoders.items():
             if col in row:
                 val = str(row[col].iloc[0])
@@ -283,7 +303,6 @@ class MLEngine:
         return res
 
     def export_model(self, filepath: str):
-        """Saves model bundle (.joblib)."""
         bundle = {
             "model": self.trained_model,
             "scaler": self.scaler,
@@ -297,17 +316,16 @@ class MLEngine:
         joblib.dump(bundle, filepath)
 
     def generate_python_code(self) -> str:
-        """Generates ready-to-run Python code for beginners."""
         features_repr = json.dumps(self.feature_names, indent=4)
         return f'''# Auto-generated by FTool Machine Learning Studio
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import {self.trained_model.__class__.__name__}
+from sklearn.neural_network import MLPClassifier
 
-# 1. Load your dataset
-df = pd.read_csv("your_data.csv")
+# 1. Load dataset
+df = pd.read_csv("dataset.csv")
 
 # 2. Select Features and Target
 features = {features_repr}
@@ -324,11 +342,11 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# 5. Initialize and Train Model
-model = {self.trained_model.__class__.__name__}()
+# 5. Initialize and Train Neural Network
+model = {self.trained_model.__class__.__name__}(hidden_layer_sizes=(8, 6), max_iter=250)
 model.fit(X_train_scaled, y_train)
 
-# 6. Predict and Evaluate
+# 6. Evaluate
 score = model.score(X_test_scaled, y_test)
-print(f"Model Score: {{score:.4f}}")
+print(f"Model Accuracy / Score: {{score:.4f}}")
 '''
